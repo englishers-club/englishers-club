@@ -86,55 +86,21 @@ const Contact: React.FC = () => {
     };
 
     try {
-      const web3Key = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
-      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const apiBase = import.meta.env.VITE_API_URL || '';
+      const contactUrl = apiBase
+        ? `${apiBase.replace(/\/$/, '')}/api/contact`
+        : '/api/contact';
 
-      if (web3Key && web3Key.length > 10) {
-        const res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_key: web3Key,
-            subject: `طلب تواصل جديد: ${formData.name} - نادي إنجلشرز`,
-            from_name: 'نادي إنجلشرز',
-            botcheck: '',
-            ...payload,
-          }),
-        });
+      const res = await fetch(contactUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-        const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
-        if (!res.ok) {
-          throw new Error(data.message || 'حدث خطأ، يرجى المحاولة لاحقاً');
-        }
-
-        if (data && !data.success) {
-          throw new Error(data.message || 'فشل إرسال الرسالة');
-        }
-      } else if (apiUrl && apiUrl.length > 0) {
-        const res = await fetch(`${apiUrl}/api/contact`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          throw new Error(data.message || 'حدث خطأ، يرجى المحاولة لاحقاً');
-        }
-      } else {
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          throw new Error(data.message || 'حدث خطأ، يرجى المحاولة لاحقاً');
-        }
+      if (!res.ok) {
+        throw new Error(data.message || 'حدث خطأ، يرجى المحاولة لاحقاً');
       }
 
       setSubmitted(true);
