@@ -21,11 +21,12 @@ const PORT = process.env.PORT || 3001;
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
-const TO_EMAIL = (process.env.TO_EMAIL || 'englishers.co@gmail.com').trim();
-const FROM_EMAIL = (process.env.FROM_EMAIL || 'onboarding@resend.dev').trim();
+const TO_EMAIL = (process.env.TO_EMAIL || process.env.CONTACT_RECIPIENT_EMAIL || 'englishers.co@gmail.com').trim();
+const FROM_EMAIL = (process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
 const FROM_NAME = (process.env.FROM_NAME || 'Englishers Club').trim();
 const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
 if (GEMINI_API_KEY) process.env.GEMINI_API_KEY = GEMINI_API_KEY;
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
 const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
@@ -253,12 +254,12 @@ apiRouter.get('/health', (req, res) => {
 app.use('/api', apiRouter);
 
 app.get('/', (req, res) => {
-  res.redirect(302, 'http://localhost:3000');
+  res.redirect(302, FRONTEND_URL);
 });
 
 app.use((req, res) => {
   if (!req.path.startsWith('/api')) {
-    return res.redirect(302, `http://localhost:3000${req.path || '/'}`);
+    return res.redirect(302, `${FRONTEND_URL}${req.path || '/'}`);
   }
   res.status(404).json({ error: 'Not found' });
 });
