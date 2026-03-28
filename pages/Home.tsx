@@ -1,53 +1,40 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Users, MessageCircle, Sparkles, Zap, ChevronDown, Heart } from 'lucide-react';
 import './Home.css';
-import FloatingLines from '../components/FloatingLines';
-import TextType from '../components/TextType';
+import LightRays from '../components/LightRays';
 import ImageWithLoader from '../components/ImageWithLoader';
+import VideoWithLoader from '../components/VideoWithLoader';
+import BlurText from '../components/BlurText';
 
 const Home: React.FC = () => {
-  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in-up');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="overflow-hidden bg-white dark:bg-brand-navy">
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 md:pt-32 md:pb-40 bg-brand-cream dark:bg-brand-navy overflow-hidden fade-in-up">
-        {/* Floating Lines Background Effect */}
-        <div className="absolute inset-0 -z-10 opacity-80">
-          <FloatingLines
-            linesGradient={['#F28C63', '#ffffff', '#1D1D41']}
-            enabledWaves={['top', 'middle', 'bottom']}
-            lineCount={[4, 6, 5]}
-            lineDistance={[4, 6, 5]}
-            animationSpeed={0.9}
-            interactive
-            bendRadius={4}
-            bendStrength={-0.45}
-            parallax
-            parallaxStrength={0.16}
-            mixBlendMode="screen"
-          />
+      <section className="relative pt-12 pb-20 md:pt-32 md:pb-40 bg-brand-cream dark:bg-brand-navy overflow-hidden">
+        {/* Light rays — خلفية WebGL (React Bits / ogl) */}
+        <div
+          className="absolute inset-0 -z-10 overflow-hidden"
+          aria-hidden
+        >
+          <div className="absolute inset-0 opacity-[0.5] dark:opacity-[0.38]">
+            <LightRays
+              raysOrigin="top-center"
+              raysColor="#F28C63"
+              raysSpeed={0.85}
+              lightSpread={1.15}
+              rayLength={2.1}
+              fadeDistance={1.15}
+              saturation={0.88}
+              followMouse
+              mouseInfluence={0.12}
+              noiseAmount={0.04}
+              distortion={0.02}
+              className="absolute inset-0 h-full w-full"
+            />
+          </div>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand-cream/80 via-transparent to-brand-cream/95 dark:from-brand-navy/75 dark:via-brand-navy/40 dark:to-brand-navy" />
         </div>
 
         {/* Animated Background Graphics */}
@@ -56,58 +43,42 @@ const Home: React.FC = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="text-right space-y-6 md:space-y-8">
-              <div className="inline-flex items-center space-x-2 space-x-reverse bg-brand-navy text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full text-xs md:text-sm font-bold animate-bounce shadow-xl">
+            <div className="text-start space-y-6 md:space-y-8">
+              <div className="inline-flex items-center space-x-2 space-x-reverse bg-brand-navy text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-xl">
                 <Sparkles size={16} className="text-brand-coral md:w-[18px]" />
-                <span>التسجيل متاح الآن للفصل الجديد!</span>
+                <span>التسجيل متاح الآن !</span>
               </div>
               
-            <h1
-              className="
-                text-4xl sm:text-5xl md:text-7xl lg:text-8xl
-                font-extrabold
-                text-brand-navy dark:text-white
-                leading-[1.3] md:leading-[1.25]
-                tracking-normal
-                text-balance
-              "
-            >
-              تعلم{" "}
-              <span
-                className="
-                  text-brand-coral
-                  font-black
-                  bg-gradient-to-l from-brand-coral to-orange-400
-                  bg-clip-text text-transparent
-                "
-              >
-                الإنجليزية
-              </span>
-              <br />
-              <span className="block mt-2">
-                <TextType
+            <h1 className="leading-[1.3] md:leading-[1.25] tracking-normal text-balance space-y-4">
+              <div className="flex flex-wrap justify-start gap-x-2 md:gap-x-3">
+                <BlurText
                   as="span"
-                  text={['تحدث بثقة.', 'وابنِ ثقتك معنا.']}
-                  typingSpeed={70}
-                  variableSpeed={{ min: 50, max: 100 }}
-                  pauseDuration={2200}
-                  deletingSpeed={35}
-                  loop
-                  showCursor
-                  hideCursorWhileTyping
-                  cursorCharacter="|"
-                  cursorClassName="text-brand-coral"
+                  text="تعلم"
+                  className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold text-brand-navy dark:text-white justify-start"
+                  delay={90}
                 />
-              </span>
+                <BlurText
+                  as="span"
+                  text="الإنجليزية"
+                  className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-brand-coral justify-start"
+                  delay={110}
+                />
+              </div>
+              <BlurText
+                as="span"
+                text="تحدث بثقة. وابنِ ثقتك معنا."
+                className="block w-full text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-navy dark:text-white justify-start mt-2"
+                delay={70}
+              />
             </h1>
 
               
-              <p className="text-lg md:text-xl text-slate-600 dark:text-slate-200 leading-relaxed max-w-xl ml-auto">
+              <p className="text-lg md:text-xl text-slate-600 dark:text-slate-200 leading-relaxed max-w-xl w-full text-start me-auto">
                 في إنجلشرز نخلق لك بيئة تجمع بين المتعة والتعلم الحقيقي. انضم لأكبر مجتمع تعليمي في كربلاء وابدأ رحلتك اليوم.
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-end">
-                <Link to="/contact" className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-coral text-white font-black rounded-2xl hover:bg-brand-navy transition-all shadow-lg flex items-center justify-center space-x-3 space-x-reverse active:scale-95 group glow">
+              <div className="flex flex-col sm:flex-row items-center gap-4 justify-start">
+                <Link to="/contact" className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-coral text-white font-black rounded-2xl hover:bg-brand-navy transition-all shadow-lg hover:shadow-xl flex items-center justify-center space-x-3 space-x-reverse active:scale-95 group">
                   <span>انضم إلينا الآن</span>
                   <ArrowLeft size={20} className="md:w-6 group-hover:-translate-x-1 transition-transform" />
                 </Link>
@@ -116,7 +87,7 @@ const Home: React.FC = () => {
                 </a>
               </div>
 
-              <div className="flex items-center space-x-4 md:space-x-6 space-x-reverse justify-end pt-4 md:pt-8">
+              <div className="flex items-center space-x-4 md:space-x-6 space-x-reverse justify-start pt-4 md:pt-8">
                 <div className="flex -space-x-2 md:-space-x-3 space-x-reverse">
                 </div>
               </div>
@@ -128,15 +99,15 @@ const Home: React.FC = () => {
                <div className="relative bg-brand-navy rounded-[2.5rem] lg:rounded-[3rem] p-3 sm:p-4 overflow-hidden shadow-2xl max-w-md mx-auto">
                  {/* Reels Frame */}
                  <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white dark:bg-slate-900 shadow-[0_20px_70px_-35px_rgba(0,0,0,0.35)]">
-                   {/* Soft glow */}
                    <div className="pointer-events-none absolute -inset-24 bg-gradient-to-tr from-brand-coral/15 via-transparent to-brand-navy/10 blur-2xl" />
 
                    {/* 9:16 area */}
                    <div className="relative p-2 sm:p-3">
                      <div className="relative overflow-hidden rounded-[1.6rem] sm:rounded-[1.8rem] bg-black">
                        <div className="aspect-[9/16] w-full">
-                         <video
+                         <VideoWithLoader
                            src="/video/video-to-homepage.mp4"
+                           wrapperClassName="h-full w-full min-h-0"
                            className="h-full w-full object-cover"
                            autoPlay
                            muted
@@ -152,9 +123,9 @@ const Home: React.FC = () => {
                  </div>
 
                  {/* Floating badge */}
-                 <div className="absolute -bottom-4 left-6 sm:left-10 bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl shadow-2xl border-2 border-brand-coral animate-float">
+                 <div className="absolute -bottom-4 left-6 sm:left-10 bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl shadow-2xl border-2 border-brand-coral">
                    <p className="text-brand-navy dark:text-white font-black text-sm sm:text-base">أفضل بيئة تعليمية</p>
-                   <p className="text-brand-coral font-bold text-xs sm:text-sm">شاهد نبذة سريعة ✨</p>
+                   <p className="text-brand-coral font-bold text-xs sm:text-sm">شاهد نبذة سريعة</p>
                  </div>
                </div>
             </div>
@@ -162,7 +133,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Floating Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block">
           <a href="#about-preview" className="text-brand-navy/30 dark:text-slate-400 hover:text-brand-coral transition-colors">
             <ChevronDown size={32} />
           </a>
@@ -170,10 +141,10 @@ const Home: React.FC = () => {
       </section>
 
       {/* About Preview Section */}
-      <section id="about-preview" className="py-20 md:py-32 bg-white dark:bg-brand-navy scroll-mt-20" ref={(el) => (sectionsRef.current[0] = el)}>
+      <section id="about-preview" className="py-20 md:py-32 bg-white dark:bg-brand-navy scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1 relative">
+            <div className="order-2 lg:order-2 relative">
               <div className="absolute -inset-4 bg-brand-cream dark:bg-slate-900 rounded-[3rem] -rotate-2"></div>
               <ImageWithLoader
                 src="/image/pic4.jpg"
@@ -181,9 +152,13 @@ const Home: React.FC = () => {
                 className="relative rounded-[2.5rem] shadow-xl border-4 border-white w-full object-cover"
               />
             </div>
-            <div className="order-1 lg:order-2 text-right space-y-6">
-              <h2 className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white italic">أكثر من مجرد نادي</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-200 leading-relaxed">
+            <div className="order-1 lg:order-1 text-start space-y-6">
+              <BlurText
+                as="h2"
+                text="أكثر من مجرد نادي"
+                className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-start"
+              />
+              <p className="text-lg text-slate-600 dark:text-slate-200 leading-relaxed text-start">
                 يهدف نادي انكليشرز إلى جعل تعلّم اللغة الإنجليزية تجربة ممتعة، تفاعلية، وخالية من التوتر. نحن نركز على التواصل الحقيقي وبناء الثقة بالنفس أكثر من الحفظ التقليدي.
               </p>
               <div className="flex flex-col gap-4">
@@ -212,27 +187,17 @@ const Home: React.FC = () => {
       </section>
 
       {/* Stats Section / Why EnglishersClub */}
-      <section id="why-us" className="py-16 md:py-24 bg-brand-cream dark:bg-slate-950 scroll-mt-20" ref={(el) => (sectionsRef.current[1] = el)}>
+      <section id="why-us" className="py-16 md:py-24 bg-brand-cream dark:bg-slate-950 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <TextType
+            <BlurText
               as="h2"
-              className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white mb-4 italic block"
-              text={['لماذا تختارنا؟', 'لأننا نضعك في القلب']}
-              typingSpeed={65}
-              variableSpeed={{ min: 45, max: 95 }}
-              pauseDuration={2300}
-              deletingSpeed={32}
-              loop
-              showCursor
-              hideCursorWhileTyping
-              cursorCharacter="|"
-              startOnVisible
-              textColors={['#F28C63', '#1D1D41']}
+              text="لماذا تختارنا؟"
+              align="center"
+              className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-center w-full"
             />
-            <div className="w-24 h-1 bg-brand-coral mx-auto rounded-full"></div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 text-right">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 text-start">
             {[
               {
                 icon: <Users className="text-brand-navy" size={40} />,
@@ -263,30 +228,19 @@ const Home: React.FC = () => {
       </section>
 
       {/* Featured Courses Callout */}
-      <section id="featured-courses" className="py-16 md:py-24 bg-brand-navy text-white relative overflow-hidden scroll-mt-20" ref={(el) => (sectionsRef.current[2] = el)}>
+      <section id="featured-courses" className="py-16 md:py-24 bg-brand-navy text-white relative overflow-hidden scroll-mt-20">
         <div className="absolute top-0 left-0 w-full h-1 bg-brand-coral"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row justify-between items-center mb-12 md:mb-16 gap-6 md:gap-8">
-            <div className="text-right">
-              <TextType
+            <div className="text-start w-full lg:w-auto">
+              <BlurText
                 as="h2"
-                className="text-3xl sm:text-4xl md:text-6xl font-black mb-3 md:mb-4 italic block text-white"
-                text={['جاهز تكتشف مهاراتك؟', 'ابدأ من مستواك الحقيقي']}
-                typingSpeed={60}
-                variableSpeed={{ min: 45, max: 90 }}
-                pauseDuration={2400}
-                deletingSpeed={30}
-                loop
-                showCursor
-                hideCursorWhileTyping
-                cursorCharacter="|"
-                cursorClassName="text-brand-coral"
-                startOnVisible
-                textColors={['#F28C63', '#ffffff']}
+                text="جاهز تكتشف مهاراتك؟"
+                className="text-3xl sm:text-4xl md:text-6xl font-black text-white justify-start"
               />
-              <p className="text-slate-400 text-lg md:text-xl">دوراتنا مصممة خصيصاً لتناسب احتياجاتك ومستواك الحالي.</p>
+              <p className="text-slate-400 text-lg md:text-xl mt-6">دوراتنا مصممة خصيصاً لتناسب احتياجاتك ومستواك الحالي.</p>
             </div>
-            <Link to="/courses" className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-coral text-white font-black rounded-2xl hover:scale-105 transition-all shadow-xl text-center">
+            <Link to="/courses" className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-coral text-white font-black rounded-2xl hover:scale-105 transition-all shadow-xl text-center shrink-0">
               تصفح جميع الدورات
             </Link>
           </div>
@@ -315,25 +269,15 @@ const Home: React.FC = () => {
       <section
         id="community-highlights"
         className="pt-16 md:pt-20 pb-6 md:pb-8 bg-white dark:bg-brand-navy scroll-mt-20"
-        ref={(el) => (sectionsRef.current[3] = el)}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <TextType
+          <BlurText
             as="h2"
-            className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white mb-12 italic block"
-            text={['لمحات من فعالياتنا', 'حياة النادي خارج القاعة']}
-            typingSpeed={65}
-            variableSpeed={{ min: 45, max: 95 }}
-            pauseDuration={2300}
-            deletingSpeed={32}
-            loop
-            showCursor
-            hideCursorWhileTyping
-            cursorCharacter="|"
-            startOnVisible
-            textColors={['#F28C63', '#1D1D41']}
+            text="لمحات من فعالياتنا"
+            align="center"
+            className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-center w-full"
           />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
             <ImageWithLoader src="/image/pic6.jpg" className="rounded-3xl h-64 w-full object-cover hover:scale-105 transition-transform shadow-lg" alt="Community 1" />
             <ImageWithLoader src="/image/pic3.jpg" className="rounded-3xl h-64 w-full object-cover hover:scale-105 transition-transform shadow-lg" alt="Community 2" />
             <ImageWithLoader src="/image/pic2.jpg" className="rounded-3xl h-64 w-full object-cover hover:scale-105 transition-transform shadow-lg" alt="Community 3" />
@@ -346,26 +290,21 @@ const Home: React.FC = () => {
       </section>
 
       {/* Big Social Callout */}
-      <section id="join-the-club" className="pt-12 md:pt-16 pb-20 md:pb-24 scroll-mt-20" ref={(el) => (sectionsRef.current[4] = el)}>
+      <section id="join-the-club" className="pt-12 md:pt-16 pb-20 md:pb-24 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-brand-coral rounded-[3rem] md:rounded-[4rem] p-10 md:p-24 text-center text-white relative shadow-2xl overflow-hidden">
-             <div className="relative z-10">
-                <TextType
+             <div className="relative z-10 flex flex-col items-center">
+                <BlurText
                   as="h2"
-                  className="text-4xl sm:text-5xl md:text-8xl font-black mb-8 md:mb-10 leading-tight block text-white"
-                  text={['صرنا عائلة، ناقصنا بس أنت!', 'انضم وكن جزءاً من القصة']}
-                  typingSpeed={55}
-                  variableSpeed={{ min: 40, max: 85 }}
-                  pauseDuration={2800}
-                  deletingSpeed={28}
-                  loop
-                  showCursor
-                  hideCursorWhileTyping
-                  cursorCharacter="|"
-                  cursorClassName="text-white"
+                  text="صرنا عائلة، ناقصنا بس أنت!"
+                  align="center"
+                  className="text-4xl sm:text-5xl md:text-8xl font-black mb-4 md:mb-6 leading-tight text-white max-w-4xl justify-center"
                 />
+                <p className="text-lg md:text-2xl font-bold text-white/95 mb-8 md:mb-10 max-w-2xl">
+                  انضم وكن جزءاً من القصة
+                </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
-                  <a href="https://instagram.com/englishers.club" target="_blank" className="bg-brand-navy px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl hover:bg-white hover:text-brand-navy transition-all shadow-2xl flex items-center justify-center space-x-3 space-x-reverse">
+                  <a href="https://instagram.com/englishers.club" target="_blank" rel="noopener noreferrer" className="bg-brand-navy px-8 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl hover:bg-white hover:text-brand-navy transition-all shadow-2xl flex items-center justify-center space-x-3 space-x-reverse">
                     <Instagram size={24} />
                     <span>تابعنا على إنستجرام</span>
                   </a>

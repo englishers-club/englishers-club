@@ -1,31 +1,23 @@
 
 import React from 'react';
-import TextType from '../components/TextType';
+import BlurText from '../components/BlurText';
 import ImageWithLoader from '../components/ImageWithLoader';
 import { ShieldCheck, Heart, UserPlus, Lightbulb, GraduationCap, Presentation, Users, Trophy } from 'lucide-react';
 
 const About: React.FC = () => {
   return (
-    <div className="pb-16 md:pb-20 text-right bg-white dark:bg-brand-navy">
+    <div className="pb-16 md:pb-20 text-start bg-white dark:bg-brand-navy">
       {/* Header */}
       <header className="bg-brand-navy py-16 md:py-24 text-center relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 bg-brand-coral opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
         <div className="relative z-10 px-4">
-          <TextType
+          <BlurText
             as="h1"
-            className="text-3xl md:text-6xl font-black text-white mb-4 md:mb-6"
             text="من هو إنجلشرز؟"
-            typingSpeed={55}
-            variableSpeed={{ min: 40, max: 90 }}
-            pauseDuration={2400}
-            deletingSpeed={32}
-            loop={false}
-            showCursor
-            hideCursorWhileTyping
-            cursorCharacter="|"
-            startOnVisible
+            align="center"
+            className="text-3xl md:text-6xl font-black text-white justify-center w-full"
           />
-          <p className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg">
+          <p className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg mt-8 text-center">
             نحن نؤمن بأن اللغة جسر وليست عائقاً. مهمتنا هي جعل اللغة الإنجليزية سهلة المنال وممتعة وممكنة لكل طموح.
           </p>
         </div>
@@ -34,7 +26,7 @@ const About: React.FC = () => {
       {/* Goal Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-14">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
-          <div className="relative order-2 lg:order-1">
+          <div className="relative order-2 lg:order-2">
              <div className="absolute inset-0 bg-brand-coral/10 rounded-[2rem] md:rounded-[3rem] -rotate-3 translate-x-3 md:translate-x-4 translate-y-3 md:translate-y-4"></div>
              <ImageWithLoader
               src="/image/pic9.jpg"
@@ -42,29 +34,19 @@ const About: React.FC = () => {
               className="relative rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl z-10 border-4 border-white w-full object-cover aspect-video sm:aspect-auto"
             />
           </div>
-          <div className="space-y-6 md:space-y-8 order-1 lg:order-2">
+          <div className="space-y-6 md:space-y-8 order-1 lg:order-1 text-start">
             <div className="inline-block px-4 py-1 bg-brand-coral/10 text-brand-coral rounded-full text-xs md:text-sm font-black mb-2">
               رسالتنا وأهدافنا
             </div>
-            <TextType
+            <BlurText
               as="h2"
-              className="text-3xl md:text-4xl font-black text-brand-navy dark:text-white mb-4 italic"
-              text={['هدف النادي', 'رسالتنا وأهدافنا']}
-              typingSpeed={60}
-              variableSpeed={{ min: 45, max: 90 }}
-              pauseDuration={2200}
-              deletingSpeed={32}
-              loop
-              showCursor
-              hideCursorWhileTyping
-              cursorCharacter="|"
-              startOnVisible
-              textColors={['#F28C63', '#1D1D41']}
+              text="رسالتنا وأهدافنا"
+              className="text-3xl md:text-4xl font-black text-brand-navy dark:text-white justify-start"
             />
-            <p className="text-slate-600 dark:text-slate-200 leading-relaxed text-lg md:text-xl">
+            <p className="text-slate-600 dark:text-slate-200 leading-relaxed text-lg md:text-xl mt-6 text-start">
               يهدف نادي انكليشرز إلى جعل تعلّم اللغة الإنجليزية تجربة ممتعة، تفاعلية، وخالية من التوتر، حيث نركّز على التواصل الحقيقي وبناء الثقة بالنفس أكثر من الحفظ والقواعد الجافة. 
             </p>
-            <p className="text-slate-600 dark:text-slate-200 leading-relaxed text-base md:text-lg">
+            <p className="text-slate-600 dark:text-slate-200 leading-relaxed text-base md:text-lg text-start">
               نوفر بيئة تعليمية إيجابية تشجّع على المشاركة، الخطأ، والتعلّم بروح مريحة، من خلال أنشطة حديثة، نقاشات، وألعاب تعليمية. في نادي انكليشرز، لا تتعلّم الإنجليزية فقط، بل تنضم إلى مجتمع حيوي يساعدك على تطوير مهاراتك، توسيع علاقاتك، واستخدام اللغة بثقة في الدراسة، العمل، والسفر.
             </p>
             
@@ -90,22 +72,13 @@ const About: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-full h-1 bg-brand-coral"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
           <div className="text-center mb-12 md:mb-20">
-            <TextType
+            <BlurText
               as="h2"
-              className="text-3xl md:text-5xl font-black italic mb-4 md:mb-6 block text-white"
-              text={['إنجازاتنا', 'أرقامنا تتحدث']}
-              typingSpeed={65}
-              variableSpeed={{ min: 45, max: 95 }}
-              pauseDuration={2300}
-              deletingSpeed={32}
-              loop
-              showCursor
-              hideCursorWhileTyping
-              cursorCharacter="|"
-              cursorClassName="text-brand-coral"
-              startOnVisible
+              text="إنجازاتنا"
+              align="center"
+              className="text-3xl md:text-5xl font-black text-white justify-center w-full"
             />
-            <p className="text-slate-400 max-w-3xl mx-auto text-base md:text-lg leading-relaxed px-2">
+            <p className="text-slate-400 max-w-3xl mx-auto text-base md:text-lg leading-relaxed px-2 mt-8">
               نفخر في نادي انكليشرز ان بإنجازاتنا التي تعكس ثقة طلابنا بنا، حيث قمنا ببناء مجتمع تعليمي إيجابي يجمع بين المتعة والانضباط.
             </p>
           </div>
@@ -137,22 +110,12 @@ const About: React.FC = () => {
       <section className="bg-brand-cream dark:bg-slate-950 py-14 md:py-18">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12 md:mb-16">
-               <TextType
+               <BlurText
                  as="h2"
-                 className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white mb-4 italic block"
-                 text={['فلسفة التدريس', 'كيف نعلّم ولماذا']}
-                 typingSpeed={65}
-                 variableSpeed={{ min: 45, max: 95 }}
-                 pauseDuration={2300}
-                 deletingSpeed={32}
-                 loop
-                 showCursor
-                 hideCursorWhileTyping
-                 cursorCharacter="|"
-                 startOnVisible
-                 textColors={['#F28C63', '#1D1D41']}
+                 text="فلسفة التدريس"
+                 align="center"
+                 className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-center w-full"
                />
-               <div className="w-16 md:w-24 h-1 bg-brand-coral mx-auto rounded-full"></div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
                {[

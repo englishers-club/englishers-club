@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SiteLogo from './SiteLogo';
 
 const PageLoader: React.FC = () => {
   const [progress, setProgress] = useState(0);
@@ -31,11 +32,7 @@ const PageLoader: React.FC = () => {
             aria-hidden
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand-navy dark:bg-slate-900 flex items-center justify-center shadow-lg ring-2 ring-brand-coral/20">
-              <span className="text-sm md:text-base font-black tracking-widest text-brand-coral uppercase">
-                EN
-              </span>
-            </div>
+            <SiteLogo className="h-10 w-10 md:h-12 md:w-12 rounded-xl bg-white shadow-lg ring-2 ring-brand-coral/25 dark:bg-slate-900" />
           </div>
         </div>
 

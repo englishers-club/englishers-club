@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Home } from 'lucide-react';
+import SiteLogo from './SiteLogo';
 
 interface Message {
   id: string;
@@ -190,11 +191,11 @@ const EnglishAssistantChat: React.FC = () => {
       {/* Watermark / Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-2xl bg-[#1D1D41] hover:bg-[#F28C63] text-white shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(242,140,99,0.4)] focus:outline-none focus:ring-2 focus:ring-[#F28C63] focus:ring-offset-2"
+        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-2xl bg-[#1D1D41] p-1 shadow-xl ring-2 ring-[#F28C63]/40 hover:ring-[#F28C63] flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_30px_rgba(242,140,99,0.4)] focus:outline-none focus:ring-2 focus:ring-[#F28C63] focus:ring-offset-2 overflow-hidden"
         aria-label="فتح المساعد الذكي لتعليم الإنجليزية"
         title="المساعد الذكي - تعلم الإنجليزية"
       >
-        <MessageCircle size={28} strokeWidth={2} />
+        <SiteLogo className="h-full w-full rounded-[10px] object-cover" alt="" />
       </button>
 
       {/* Chat Panel */}
@@ -220,8 +221,8 @@ const EnglishAssistantChat: React.FC = () => {
             {/* Header */}
             <div className="shrink-0 flex items-center justify-between px-4 py-4 bg-[#1D1D41] border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#F28C63]/20 flex items-center justify-center">
-                  <MessageCircle size={22} className="text-[#F28C63]" />
+                <div className="w-10 h-10 rounded-xl overflow-hidden ring-2 ring-[#F28C63]/35 bg-white/5 shrink-0">
+                  <SiteLogo className="h-full w-full object-cover" alt="" />
                 </div>
                 <div>
                   <h2 className="font-bold text-base text-white">المساعد الذكي</h2>
@@ -251,8 +252,8 @@ const EnglishAssistantChat: React.FC = () => {
             <div className="flex-1 overflow-y-auto px-4 py-5 space-y-5 scroll-smooth bg-[#252550]/40">
               {messages.length === 0 && (
                 <div className="text-center py-14 px-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#F28C63]/20 flex items-center justify-center mx-auto mb-4">
-                    <MessageCircle size={32} className="text-[#F28C63]" />
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden ring-2 ring-[#F28C63]/30 mx-auto mb-4 shadow-lg">
+                    <SiteLogo className="h-full w-full object-cover" alt="" />
                   </div>
                   <p className="text-xl font-bold text-white mb-2">مرحباً! 👋</p>
                   <p className="text-[15px] leading-relaxed text-white/70 max-w-[280px] mx-auto mb-6">

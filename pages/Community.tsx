@@ -1,6 +1,6 @@
 
 import React from 'react';
-import TextType from '../components/TextType';
+import BlurText from '../components/BlurText';
 import ImageWithLoader from '../components/ImageWithLoader';
 import { Camera, Coffee, Music, Map } from 'lucide-react';
 
@@ -29,25 +29,25 @@ const Community: React.FC = () => {
   ];
 
   return (
-    <div className="py-16 md:py-20 bg-slate-50 dark:bg-brand-navy text-right">
+    <div className="py-16 md:py-20 bg-slate-50 dark:bg-brand-navy text-start">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16 px-4">
-          <TextType
-            as="h1"
-            className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white mb-4 md:mb-6"
-            text={['إنه أسلوب حياة', 'مجتمع يتكلم الإنجليزية فعلاً']}
-            typingSpeed={60}
-            variableSpeed={{ min: 45, max: 95 }}
-            pauseDuration={2300}
-            deletingSpeed={32}
-            loop
-            showCursor
-            hideCursorWhileTyping
-            cursorCharacter="|"
-            startOnVisible
-            textColors={['#F28C63', '#1D1D41']}
-          />
-          <p className="text-slate-600 dark:text-slate-200 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+          <h1 className="mb-0 space-y-3">
+            <BlurText
+              as="span"
+              text="إنه أسلوب حياة"
+              align="center"
+              className="block text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-center w-full"
+            />
+            <BlurText
+              as="span"
+              text="مجتمع يتكلم الإنجليزية فعلاً"
+              align="center"
+              className="block text-2xl md:text-4xl font-black text-brand-coral justify-center w-full"
+              delay={90}
+            />
+          </h1>
+          <p className="text-slate-600 dark:text-slate-200 max-w-2xl mx-auto text-base md:text-lg leading-relaxed mt-8">
             التعلم يحدث في كل مكان وليس فقط داخل القاعات. ينظم نادينا فعاليات تنقل اللغة الإنجليزية خارج الفصل الدراسي إلى الحياة الحقيقية الممتعة.
           </p>
         </div>
@@ -68,23 +68,13 @@ const Community: React.FC = () => {
 
         <div className="bg-brand-navy rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-16 text-white overflow-hidden relative shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
-            <div className="text-center lg:text-right">
-               <TextType
+            <div className="text-center lg:text-start">
+               <BlurText
                  as="h2"
-                 className="text-2xl md:text-4xl font-black mb-4 md:mb-6 italic block text-white"
-                 text={['انضم إلى فعالياتنا الاجتماعية الشهرية', 'لقاءات حية ومتعة حقيقية']}
-                 typingSpeed={55}
-                 variableSpeed={{ min: 40, max: 85 }}
-                 pauseDuration={2500}
-                 deletingSpeed={30}
-                 loop
-                 showCursor
-                 hideCursorWhileTyping
-                 cursorCharacter="|"
-                 cursorClassName="text-brand-coral"
-                 startOnVisible
+                 text="انضم إلى فعالياتنا الاجتماعية الشهرية"
+                 className="text-2xl md:text-4xl font-black text-white justify-center lg:justify-start w-full"
                />
-               <p className="text-slate-300 mb-8 md:mb-10 text-base md:text-lg leading-relaxed">
+               <p className="text-slate-300 mb-8 md:mb-10 text-base md:text-lg leading-relaxed mt-6 text-start">
                  كل شهر، نستضيف حدثاً رئيسياً لجميع الأعضاء. إنه الوقت المثالي للقاء أصدقاء جدد، وممارسة مهاراتك اللغوية في جو مليء بالمرح والضحك!
                </p>
                <button className="w-full sm:w-auto px-10 py-4 md:py-5 bg-brand-coral rounded-xl md:rounded-2xl font-black hover:scale-105 transition-all active:scale-95 shadow-xl">

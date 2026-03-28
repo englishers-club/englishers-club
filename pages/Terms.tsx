@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import TextType from '../components/TextType';
+import BlurText from '../components/BlurText';
 import { FileText, ArrowLeft } from 'lucide-react';
 
 const Terms: React.FC = () => {
   return (
-    <div className="pb-16 md:pb-20 text-right bg-white dark:bg-brand-navy">
+    <div className="pb-16 md:pb-20 text-start bg-white dark:bg-brand-navy">
       {/* Header */}
       <header className="bg-brand-navy py-14 md:py-20 text-center relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 bg-brand-coral opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
@@ -13,21 +13,13 @@ const Terms: React.FC = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-brand-coral/20 text-brand-coral mb-6">
             <FileText size={32} />
           </div>
-          <TextType
+          <BlurText
             as="h1"
-            className="text-3xl md:text-5xl font-black text-white mb-4 md:mb-6"
             text="شروط الاستخدام – EnglishersClub"
-            typingSpeed={50}
-            variableSpeed={{ min: 38, max: 85 }}
-            pauseDuration={2200}
-            deletingSpeed={30}
-            loop={false}
-            showCursor
-            hideCursorWhileTyping
-            cursorCharacter="|"
-            startOnVisible
+            align="center"
+            className="text-3xl md:text-5xl font-black text-white justify-center w-full"
           />
-          <p className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg">
+          <p className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg mt-8">
             من خلال استخدامك للموقع فإنك توافق على الالتزام بهذه الشروط والأحكام.
           </p>
         </div>

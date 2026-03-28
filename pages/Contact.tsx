@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
-import TextType from '../components/TextType';
+import BlurText from '../components/BlurText';
+import { LocationMap } from '../components/ui/expand-map';
 import { COURSES_DATA } from './Courses';
 
 const COURSE_OPTIONS = [
@@ -125,22 +126,22 @@ const Contact: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <TextType
-              as="h1"
-              className="text-5xl md:text-7xl font-black mb-6 leading-tight"
-              text={['تواصل معنا', 'وخلّنا نبدأ رحلتك اليوم']}
-              typingSpeed={65}
-              variableSpeed={{ min: 45, max: 95 }}
-              pauseDuration={2200}
-              deletingSpeed={32}
-              loop
-              showCursor
-              hideCursorWhileTyping
-              cursorCharacter="|"
-              startOnVisible
-              textColors={['#F28C63', '#ffffff']}
-            />
-            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <h1 className="mb-0 space-y-4">
+              <BlurText
+                as="span"
+                text="تواصل معنا"
+                align="center"
+                className="block text-5xl md:text-7xl font-black leading-tight text-white justify-center w-full"
+              />
+              <BlurText
+                as="span"
+                text="وخلّنا نبدأ رحلتك اليوم"
+                align="center"
+                className="block text-3xl md:text-5xl font-black text-brand-coral justify-center w-full"
+                delay={100}
+              />
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed mt-8">
               نحن هنا لمساعدتك في رحلتك التعليمية. تواصل معنا وابدأ تعلم الإنجليزية اليوم!
             </p>
           </div>
@@ -167,9 +168,14 @@ const Contact: React.FC = () => {
                 icon: <Phone className="text-brand-navy" size={32} />,
                 title: "الهاتف",
                 content: (
-                  <a href="tel:+9647750007476" dir="ltr" className="inline-block text-brand-navy dark:text-white font-bold text-lg tracking-wide hover:text-brand-coral transition-colors">
-                    0775 000 7476
-                  </a>
+                  <div className="space-y-3 text-start">
+                    <a href="tel:+9647750007476" dir="ltr" className="block text-brand-navy dark:text-white font-bold text-lg tracking-wide hover:text-brand-coral transition-colors">
+                      0775 000 7476
+                    </a>
+                    <a href="tel:+9647850007476" dir="ltr" className="block text-brand-navy dark:text-white font-bold text-lg tracking-wide hover:text-brand-coral transition-colors">
+                      0785 000 7476
+                    </a>
+                  </div>
                 ),
                 bgColor: "bg-white dark:bg-slate-900",
                 shadowColor: "shadow-brand-navy/10"
@@ -178,9 +184,14 @@ const Contact: React.FC = () => {
                 icon: <MessageCircle className="text-green-500" size={32} />,
                 title: "واتساب",
                 content: (
-                  <a href="https://wa.me/9647750007476" target="_blank" rel="noopener noreferrer" dir="ltr" className="inline-block text-green-600 dark:text-green-400 font-bold text-lg tracking-wide hover:text-green-500 dark:hover:text-green-300 transition-colors">
-                    0775 000 7476
-                  </a>
+                  <div className="space-y-3 text-start">
+                    <a href="https://wa.me/9647750007476" target="_blank" rel="noopener noreferrer" dir="ltr" className="block text-green-600 dark:text-green-400 font-bold text-lg tracking-wide hover:text-green-500 dark:hover:text-green-300 transition-colors">
+                      0775 000 7476
+                    </a>
+                    <a href="https://wa.me/9647850007476" target="_blank" rel="noopener noreferrer" dir="ltr" className="block text-green-600 dark:text-green-400 font-bold text-lg tracking-wide hover:text-green-500 dark:hover:text-green-300 transition-colors">
+                      0785 000 7476
+                    </a>
+                  </div>
                 ),
                 bgColor: "bg-white dark:bg-slate-900",
                 shadowColor: "shadow-green-500/10"
@@ -219,9 +230,9 @@ const Contact: React.FC = () => {
               </div>
               <div className="space-y-4">
                 {[
-                  { days: "الأحد - الخميس", hours: "10:00 ص - 8:00 م" },
+                  { days: "الأحد - الخميس", hours: "9:00 م 2:00 - م" },
                   { days: "الجمعة", hours: "مغلق" },
-                  { days: "السبت", hours: "12:00 م - 6:00 م" }
+                  { days: "السبت", hours: "9:00 م 2:00 - م" }
                 ].map((schedule, i) => (
                   <div key={i} className="flex justify-between items-center py-3 border-b border-white/10 last:border-b-0">
                     <span className="font-bold text-lg">{schedule.days}</span>
@@ -231,21 +242,21 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Location Map Placeholder */}
+            {/* Location — خريطة Google مع تأثير تفاعلي */}
             <div className="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center mb-8">
+              <div className="flex items-center mb-6">
                 <div className="bg-brand-coral p-3 rounded-2xl mr-4">
                   <MapPin size={24} className="text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-brand-navy">موقعنا على الخريطة</h3>
+                <h3 className="text-2xl font-black text-brand-navy dark:text-white">موقعنا على الخريطة</h3>
               </div>
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl h-64 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin size={48} className="text-brand-coral mx-auto mb-4" />
-                  <p className="text-slate-600 dark:text-slate-200 font-medium">كربلاء، العراق</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-300 mt-2">تقاطع جسر الضريبة، ركن حي النقيب</p>
-                </div>
-              </div>
+              <LocationMap
+                location="كربلاء — تقاطع جسر الضريبة، ركن حي النقيب"
+                coordinates="32.6031° N, 44.0197° E"
+              />
+              <p className="mt-6 text-sm text-slate-600 dark:text-slate-300 leading-relaxed text-start">
+                بناية نادي إنجلشرز. يمكنك فتح الموقع مباشرة في تطبيق خرائط Google من الزر داخل الإطار.
+              </p>
             </div>
           </div>
 
@@ -260,7 +271,7 @@ const Contact: React.FC = () => {
             </div>
 
             {/* تنبيه قبل ملء النموذج */}
-            <div className="mb-10 p-5 md:p-6 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800/50 text-right">
+            <div className="mb-10 p-5 md:p-6 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800/50 text-start">
               <div className="flex gap-4 items-start">
                 <div className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-100 dark:bg-amber-800/40 flex items-center justify-center">
                   <AlertCircle size={22} className="text-amber-600 dark:text-amber-400" />
@@ -297,7 +308,7 @@ const Contact: React.FC = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right placeholder:text-slate-400"
+                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start placeholder:text-slate-400"
                       placeholder="أدخل اسمك الكامل"
                     />
                   </div>
@@ -309,7 +320,7 @@ const Contact: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right placeholder:text-slate-400"
+                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start placeholder:text-slate-400"
                       placeholder="example@email.com"
                       dir="ltr"
                     />
@@ -325,11 +336,11 @@ const Contact: React.FC = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right placeholder:text-slate-400"
+                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start placeholder:text-slate-400"
                       placeholder="07xxxxxxxx"
                       dir="ltr"
                     />
-                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">للتواصل عبر واتساب</p>
+                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">للتواصل عبر واتساب (أحد أرقام النادي أعلاه)</p>
                   </div>
                   <div>
                     <label className="block text-sm font-black text-brand-navy dark:text-white mb-3">معرف التلجرام</label>
@@ -338,7 +349,7 @@ const Contact: React.FC = () => {
                       name="telegram"
                       value={formData.telegram}
                       onChange={handleChange}
-                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right placeholder:text-slate-400"
+                      className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start placeholder:text-slate-400"
                       placeholder="@username"
                       dir="ltr"
                       autoComplete="off"
@@ -352,7 +363,7 @@ const Contact: React.FC = () => {
                   <select
                     value={selectedCourse}
                     onChange={(e) => { setSelectedCourse(e.target.value); setError(null); }}
-                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right"
+                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start"
                   >
                     {COURSE_OPTIONS.map((opt) => (
                       <option key={opt.value || 'default'} value={opt.value}>
@@ -367,7 +378,7 @@ const Contact: React.FC = () => {
                   <select
                     value={selectedLevel}
                     onChange={(e) => { setSelectedLevel(e.target.value); setError(null); }}
-                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right"
+                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start"
                   >
                     {LEVEL_OPTIONS.map((opt) => (
                       <option key={opt.value || 'default'} value={opt.value}>
@@ -385,7 +396,7 @@ const Contact: React.FC = () => {
                     value={formData.message}
                     onChange={handleChange}
                     maxLength={2000}
-                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-right placeholder:text-slate-400 resize-none"
+                    className="w-full bg-brand-cream dark:bg-slate-800 border-2 border-transparent rounded-2xl px-6 py-4 focus:border-brand-coral focus:ring-0 transition-all outline-none text-start placeholder:text-slate-400 resize-none"
                     placeholder="أخبرنا عن أهدافك التعليمية أو أي أسئلة لديك..."
                   />
                   <p className={`mt-2 text-sm font-medium ${messageWordCount > MAX_MESSAGE_WORDS ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'}`}>

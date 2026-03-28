@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import TextType from '../components/TextType';
+import BlurText from '../components/BlurText';
 import CourseModal from '../components/CourseModal';
 import { Clock, Users, BookOpen, GraduationCap, Info, ChevronLeft } from 'lucide-react';
 
@@ -28,8 +28,8 @@ export const COURSES_DATA: CourseItem[] = [
     description: 'كورس شامل لجميع المستويات، مدته 6 أشهر بواقع 3 جلسات أسبوعياً. نعتمد الطريقة التفاعلية بالكامل، بدون حفظ تقليدي للقواعد أو المفردات، وإنما تعلّم من خلال بيئة إنكليزية حقيقية داخل الصف، فعاليات، محادثة مستمرة، وتطبيق عملي.',
     duration: '6 أشهر',
     prices: [
-      'كاش: 560,000 دينار (بدل 700,000)',
-      'دفعتين: 600,000 دينار (بدل 750,000)',
+      'كاش: 700,000 دينار',
+      'دفعتين: 750,000 دينار',
       'أقساط شهرية: 720,000 دينار (120,000 شهرياً لمدة 6 أشهر)',
     ],
   },
@@ -43,8 +43,8 @@ export const COURSES_DATA: CourseItem[] = [
     description: 'مدته 6 أشهر، 3 محاضرات أسبوعياً، مدة كل محاضرة ساعة ونصف. يتم الاتفاق على الوقت المناسب للطالب، مع متابعة يومية بعد كل محاضرة لضمان التطور المستمر.',
     duration: '6 أشهر',
     prices: [
-      'كاش: 400,000 دينار (بدل 500,000)',
-      'أقساط: 480,000 دينار (بدل 600,000)',
+      'كاش: 500,000 دينار',
+      'أقساط: 600,000 دينار',
       'شهر واحد: 80,000 دينار',
       'ثلاثة أشهر: 240,000 دينار',
     ],
@@ -58,7 +58,7 @@ export const COURSES_DATA: CourseItem[] = [
     tag: 'للأطفال',
     description: 'مدته 3 أشهر، 4 محاضرات أسبوعياً. نعتمد منهج Family and Friends بأسلوب ممتع وتفاعلي، بإشراف أساتذة مختصين بالتعامل مع الأطفال، ضمن أجواء تعليمية مشوقة تحبب الطفل باللغة.',
     duration: '3 أشهر',
-    prices: ['الكورس الكامل: 240,000 دينار (بدل 300,000)'],
+    prices: ['الكورس الكامل: 300,000 دينار'],
   },
   {
     id: 'ielts',
@@ -70,9 +70,9 @@ export const COURSES_DATA: CourseItem[] = [
     description: 'مدة الكورس تعتمد على مستوى الطالب (من شهر إلى 3 أشهر) بعد اختبار تحديد المستوى. 12 محاضرة شهرياً (3 أسبوعياً)، مدة كل محاضرة ساعة ونصف. يشمل متابعة يومية واختبارات تدريبية على التليگرام خاصة بامتحان الآيلتس.',
     duration: '1–3 أشهر',
     prices: [
-      'شهر واحد: 240,000 دينار (بدل 300,000)',
-      'شهرين: 400,000 دينار (بدل 500,000)',
-      '3 أشهر: 520,000 دينار (بدل 650,000)',
+      'شهر واحد: 300,000 دينار',
+      'شهرين: 500,000 دينار',
+      '3 أشهر: 650,000 دينار',
     ],
   },
   {
@@ -114,26 +114,26 @@ const Courses: React.FC = () => {
   const closeModal = () => setModalCourse(null);
 
   return (
-    <div className="py-16 md:py-24 bg-white dark:bg-brand-navy text-right">
+    <div className="py-16 md:py-24 bg-white dark:bg-brand-navy text-start">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-14 md:mb-20 px-4">
-          <TextType
-            as="h1"
-            className="text-3xl md:text-5xl font-black text-brand-navy dark:text-white mb-4 md:mb-6"
-            text={['اختر كورسك التعليمي', 'وابنِ مستقبلك بثقة']}
-            typingSpeed={60}
-            variableSpeed={{ min: 45, max: 95 }}
-            pauseDuration={2200}
-            deletingSpeed={32}
-            loop
-            showCursor
-            hideCursorWhileTyping
-            cursorCharacter="|"
-            startOnVisible
-            textColors={['#F28C63', '#1D1D41']}
-          />
-          <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+          <h1 className="mb-0 space-y-3">
+            <BlurText
+              as="span"
+              text="اختر كورسك التعليمي"
+              align="center"
+              className="block text-3xl md:text-5xl font-black text-brand-navy dark:text-white justify-center w-full"
+            />
+            <BlurText
+              as="span"
+              text="وابنِ مستقبلك بثقة"
+              align="center"
+              className="block text-2xl md:text-4xl font-black text-brand-coral justify-center w-full"
+              delay={90}
+            />
+          </h1>
+          <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed mt-8">
             نقدم دورات لجميع المستويات. سواء كنت تبدأ من الصفر أو تتطلع إلى إتقان طلاقتك والوصول لمستوى الاحتراف، لدينا مكان مخصص لك.
           </p>
         </div>

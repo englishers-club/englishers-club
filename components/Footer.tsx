@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, ArrowLeft } from 'lucide-react';
+import { Instagram, Facebook, Youtube, Mail, Phone, MapPin, ArrowLeft, MessageCircle } from 'lucide-react';
+import SiteLogo from './SiteLogo';
 
 const TikTokIcon = ({ size = 24 }: { size?: number }) => (
   <svg 
@@ -25,33 +26,25 @@ const Footer: React.FC = () => {
       <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-brand-coral opacity-5 rounded-full blur-3xl"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 text-right">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 text-start">
           {/* Brand & Socials */}
           <div className="space-y-8">
-            <Link to="/" className="flex items-center space-x-3 space-x-reverse justify-end md:justify-start group">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-2 shadow-xl group-hover:rotate-12 transition-transform duration-500">
-                 <div className="relative w-full h-full flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full border-2 border-brand-navy"></div>
-                    <div className="absolute top-0 right-0 w-1/2 h-full bg-white transform translate-x-1/2"></div>
-                    <div className="flex flex-col space-y-0.5 z-10">
-                      <div className="w-5 h-1 bg-brand-coral rounded-full"></div>
-                      <div className="w-5 h-1 bg-brand-coral rounded-full"></div>
-                      <div className="w-5 h-1 bg-brand-coral rounded-full"></div>
-                    </div>
-                 </div>
+            <Link to="/" className="flex items-center space-x-3 space-x-reverse justify-start group">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-white p-1 shadow-xl ring-2 ring-white/10 group-hover:ring-brand-coral/50 group-hover:scale-[1.02] transition-all duration-300">
+                <img src="/image/Logo-copy.png" alt="Englishers Club" className="h-full w-full rounded-[10px]" />
               </div>
               <span className="text-3xl font-black tracking-tighter text-white italic group-hover:text-brand-coral transition-colors">
                 ENGLISHERS CLUB
               </span>
             </Link>
             
-            <p className="text-sm leading-relaxed text-slate-400 font-medium max-w-xs ml-auto md:ml-0">
+            <p className="text-sm leading-relaxed text-slate-400 font-medium max-w-xs ms-0 me-auto md:me-0">
               أكبر مجتمع لتعلم اللغة الإنجليزية في كربلاء. نغير حياة المتعلمين من خلال تجربة تعليمية ممتعة وحديثة.
             </p>
 
             <div className="space-y-4">
               <h4 className="text-white font-bold text-sm uppercase tracking-widest opacity-60">تابعنا على منصاتنا</h4>
-              <div className="flex space-x-4 space-x-reverse justify-end md:justify-start">
+              <div className="flex space-x-4 space-x-reverse justify-start">
                 {[
                   { icon: <Instagram size={24} />, href: "https://www.instagram.com/englishers.club", color: "hover:bg-gradient-to-tr hover:from-yellow-400 hover:to-purple-600" },
                   { icon: <Facebook size={24} />, href: "https://www.facebook.com/share/17ugL1xEmb/", color: "hover:bg-blue-600" },
@@ -113,13 +106,20 @@ const Footer: React.FC = () => {
                 <span className="text-sm font-bold group-hover:text-white transition-colors">englishers.co@gmail.com</span>
               </a>
               
-              <a href="tel:07750007476" className="flex items-center space-x-4 space-x-reverse group">
+              <a href="tel:+9647750007476" className="flex items-center space-x-4 space-x-reverse group">
                 <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-coral group-hover:bg-brand-coral group-hover:text-white transition-all">
                   <Phone size={18} />
                 </div>
-                <span className="text-sm font-bold group-hover:text-white transition-colors" dir="ltr">07750007476</span>
+                <span className="text-sm font-bold group-hover:text-white transition-colors" dir="ltr">0775 000 7476</span>
               </a>
 
+              <a href="tel:+9647850007476" className="flex items-center space-x-4 space-x-reverse group">
+                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-coral group-hover:bg-brand-coral group-hover:text-white transition-all">
+                  <Phone size={18} />
+                </div>
+                <span className="text-sm font-bold group-hover:text-white transition-colors" dir="ltr">0785 000 7476</span>
+              </a>
+             
               <div className="flex items-start space-x-4 space-x-reverse group bg-slate-800/30 p-4 rounded-2xl border-r-4 border-brand-coral shadow-lg">
                 <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-coral shrink-0">
                   <MapPin size={18} />

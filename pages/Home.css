@@ -1,55 +1,5 @@
 /* Home page animations and styles */
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes blink {
-  50% {
-    border-color: transparent;
-  }
-}
-
-.typing::after {
-  content: "|";
-  animation: blink 1s infinite;
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-.typing {
-  overflow: hidden;
-  border-right: 2px solid;
-  white-space: nowrap;
-  animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #1e3a8a, #dc2626);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
-}
-
 .float-animation {
   animation: float 6s ease-in-out infinite;
 }
@@ -66,8 +16,4 @@
 
 .pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.glow {
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
 }

@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import SiteLogo from './SiteLogo';
 
 interface CourseModalProps {
   isOpen: boolean;
@@ -48,9 +49,14 @@ const CourseModal: React.FC<CourseModalProps> = ({
       >
         <div className="p-6 md:p-8 overflow-y-auto max-h-[90vh]">
           <div className="flex items-start justify-between gap-4 mb-6">
-            <h3 className="text-xl md:text-2xl font-black text-brand-navy dark:text-white">
-              {title}
-            </h3>
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="shrink-0 h-11 w-11 rounded-xl overflow-hidden ring-2 ring-brand-coral/20 bg-white dark:bg-slate-800">
+                <SiteLogo className="h-full w-full object-cover" alt="" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-black text-brand-navy dark:text-white pt-0.5">
+                {title}
+              </h3>
+            </div>
             <button
               onClick={onClose}
               className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-brand-cream dark:bg-slate-800 text-brand-navy dark:text-slate-200 hover:bg-brand-coral hover:text-white transition-colors"
@@ -64,7 +70,7 @@ const CourseModal: React.FC<CourseModalProps> = ({
             <p>{description}</p>
             {prices.length > 0 && (
               <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                <h4 className="font-bold text-brand-navy dark:text-white mb-3">الأسعار (بعد خصم 20٪):</h4>
+                <h4 className="font-bold text-brand-navy dark:text-white mb-3">الأسعار:</h4>
                 <ul className="space-y-2">
                   {prices.map((price, i) => (
                     <li key={i} className="flex items-center gap-2">

@@ -2,24 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
-
-const Logo: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => (
-  <div className={`${className} relative flex items-center justify-center`}>
-    {/* Book shape */}
-    <div className="relative">
-      {/* Book cover */}
-      <div className="w-8 h-6 bg-brand-navy rounded-sm shadow-md"></div>
-      {/* Pages */}
-      <div className="absolute top-1 left-1 w-6 h-4 bg-white rounded-sm flex flex-col justify-center items-center">
-        <div className="w-4 h-0.5 bg-brand-coral rounded-full mb-0.5"></div>
-        <div className="w-4 h-0.5 bg-brand-coral rounded-full mb-0.5"></div>
-        <div className="w-3 h-0.5 bg-brand-coral rounded-full"></div>
-      </div>
-      {/* Spine */}
-      <div className="absolute -left-1 top-0 w-1 h-6 bg-brand-coral rounded-l-sm"></div>
-    </div>
-  </div>
-);
+import SiteLogo from './SiteLogo';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +42,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-20 gap-4">
           {/* Brand */}
           <Link to="/" className="flex items-center space-x-3 space-x-reverse group shrink-0">
-            <Logo className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
+            <SiteLogo className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-white shadow-sm ring-1 ring-slate-200/90 dark:bg-slate-900 dark:ring-white/15 group-hover:scale-105 transition-transform duration-300" />
             <div className="flex flex-col leading-tight text-right">
               <span className="text-xl font-extrabold tracking-tight text-brand-navy dark:text-white">
                 إنجلشرز
