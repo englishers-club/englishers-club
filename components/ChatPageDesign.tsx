@@ -30,20 +30,43 @@ const SUGGESTIONS = [
   'اعطني 10 كلمات مفيدة للمحادثة اليومية مع أمثلة',
 ];
 
-type SpeechInputMode = 'both' | 'ar' | 'en';
+/**
+ * Chromium: قائمة لغات مفصولة بفاصلة لدعم خلط العربية والإنجليزية في الجملة الواحدة.
+ * ترتيب ar أولاً للجمل العربية مع كلمات إنجليزية مكتوبة باللاتينية قدر إمكان المحرك.
+ */
+const SPEECH_RECOGNITION_LANG = 'ar-SA,en-US';
 
-const SPEECH_MODE_STORAGE_KEY = 'englishers-speech-input-mode';
-
-/** Chromium يقبل عدة وسوم مفصولة بفاصلة فيفضّل العربية للنطق العربي مع بقاء الإنجليزية ممكنة. */
-function getRecognitionLang(mode: SpeechInputMode): string {
-  switch (mode) {
-    case 'ar':
-      return 'ar-SA';
-    case 'en':
-      return 'en-US';
-    default:
-      return 'ar-SA,en-US';
+/**
+ * على أندرويد/كروم يُصدَر أحياناً عدة نتائج isFinal متتابعة كـ «توسيع تراكمي»
+ * (مثلاً "أريد" ثم "أريد منك أن")؛ جمعها بـ += ينتج "أريدأريد منك أن".
+ */
+function mergeFinalSpeechSegments(segments: string[]): string {
+  const parts = segments.map((s) => s.trim()).filter((s) => s.length > 0);
+  if (parts.length === 0) return '';
+  let out = parts[0];
+  for (let i = 1; i < parts.length; i++) {
+    const cur = parts[i];
+    if (cur.startsWith(out)) {
+      out = cur;
+      continue;
+    }
+    if (out.startsWith(cur) && out.length >= cur.length) {
+      continue;
+    }
+    let merged = false;
+    const maxOverlap = Math.min(out.length, cur.length, 80);
+    for (let k = maxOverlap; k > 0; k--) {
+      if (out.slice(-k) === cur.slice(0, k)) {
+        out = out + cur.slice(k);
+        merged = true;
+        break;
+      }
+    }
+    if (merged) continue;
+    const needSpace = !/\s$/.test(out) && !/^\s/.test(cur) && !/^[\.,;:!?؟،]/.test(cur);
+    out = needSpace ? `${out} ${cur}` : `${out}${cur}`;
   }
+  return out;
 }
 
 interface MockMessage {
@@ -92,26 +115,6 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
     if (typeof window === 'undefined') return false;
     return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
   }, []);
-
-  const [speechInputMode, setSpeechInputMode] = useState<SpeechInputMode>(() => {
-    if (typeof window === 'undefined') return 'both';
-    try {
-      const v = localStorage.getItem(SPEECH_MODE_STORAGE_KEY);
-      if (v === 'ar' || v === 'en' || v === 'both') return v;
-    } catch {
-      /* noop */
-    }
-    return 'both';
-  });
-
-  const persistSpeechInputMode = (mode: SpeechInputMode) => {
-    setSpeechInputMode(mode);
-    try {
-      localStorage.setItem(SPEECH_MODE_STORAGE_KEY, mode);
-    } catch {
-      /* noop */
-    }
-  };
 
   const [isNarrowComposer, setIsNarrowComposer] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches,
@@ -321,27 +324,33 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
     speechUserStoppedRef.current = false;
     speechBaseRef.current = input + (input && !/\s$/.test(input) ? ' ' : '');
 
+    let preferFinalOnly = false;
+    try {
+      if (window.matchMedia('(pointer: coarse)').matches) preferFinalOnly = true;
+      else if (window.matchMedia('(max-width: 480px)').matches) preferFinalOnly = true;
+    } catch {
+      /* noop */
+    }
+
     const rec = new Ctor();
     recognitionRef.current = rec;
     rec.continuous = true;
-    rec.interimResults = true;
-    rec.lang = getRecognitionLang(speechInputMode);
+    /* على اللمس/الموبايل: تعطيل المؤقت يقلّل التكرار المرئي (مثل أريداريد...) */
+    rec.interimResults = !preferFinalOnly;
+    rec.lang = SPEECH_RECOGNITION_LANG;
     rec.maxAlternatives = 1;
 
     rec.onresult = (event) => {
-      /*
-       * لا نجمع النهائي بـ += من resultIndex فقط: Chrome/Android يعيد أحياناً نفس الفهرس
-       * عند تحويل النتيجة من مؤقتة إلى نهائية → تكرار مثل "hello hello hello".
-       * إعادة بناء السطر من المصفوفة كاملة في كل حدث يضمن كل مقطع نهائي مرة واحدة.
-       */
-      let finalText = '';
-      let interimText = '';
+      const finalPieces: string[] = [];
+      const interimPieces: string[] = [];
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         const piece = result[0]?.transcript ?? '';
-        if (result.isFinal) finalText += piece;
-        else interimText += piece;
+        if (result.isFinal) finalPieces.push(piece);
+        else interimPieces.push(piece);
       }
+      const finalText = mergeFinalSpeechSegments(finalPieces);
+      const interimText = mergeFinalSpeechSegments(interimPieces);
       setInput(speechBaseRef.current + finalText + interimText);
     };
 
@@ -687,11 +696,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                     ? 'التعرف على الصوت غير متاح في هذا المتصفح (جرّب Chrome أو Edge)'
                     : isListening
                       ? 'إيقاف الاستماع'
-                      : speechInputMode === 'both'
-                        ? 'تحدّث بالعربية أو الإنجليزية — يُكتب النص بنفس اللغة قدر الإمكان'
-                        : speechInputMode === 'ar'
-                          ? 'تحدّث بالعربية ليظهر النص بالعربية'
-                          : 'Speak in English for Latin text'
+                      : 'تحدّث بأي لغة أو بخلط عربي/إنجليزي — التعرف ثنائي اللغة'
                 }
                 className={cn(
                   'flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-xl border text-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-40 min-[481px]:h-9 min-[481px]:w-9',
@@ -721,39 +726,6 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
               <p className="mt-1.5 text-center text-[0.72rem] leading-relaxed text-destructive min-[481px]:text-[0.75rem]">
                 {speechError}
               </p>
-            ) : null}
-
-            {speechSupported ? (
-              <div
-                className="mx-auto mt-1.5 flex max-w-[840px] flex-wrap items-stretch justify-center gap-x-1 gap-y-2 px-1 text-[0.62rem] leading-relaxed text-muted-foreground min-[400px]:items-center min-[481px]:gap-x-1.5 min-[481px]:text-[0.66rem]"
-                role="group"
-                aria-label="لغة التعرف على الكلام"
-              >
-                <span className="flex w-full shrink-0 basis-full items-center justify-center text-center text-muted-foreground/85 min-[400px]:w-auto min-[400px]:basis-auto">
-                  لغة الميكروفون:
-                </span>
-                {(
-                  [
-                    { mode: 'both' as const, label: 'عربي + إنجليزي' },
-                    { mode: 'ar' as const, label: 'عربي فقط' },
-                    { mode: 'en' as const, label: 'English فقط' },
-                  ] as const
-                ).map(({ mode, label }) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => persistSpeechInputMode(mode)}
-                    className={cn(
-                      'min-h-[44px] touch-manipulation rounded-full border px-3 py-2 transition-colors min-[481px]:min-h-0 min-[481px]:px-2.5 min-[481px]:py-1',
-                      speechInputMode === mode
-                        ? 'border-primary/50 bg-primary/15 text-primary'
-                        : 'border-transparent bg-background/50 hover:border-border/80 hover:bg-accent/25 active:bg-accent/35',
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
             ) : null}
 
             <div
