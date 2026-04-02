@@ -86,7 +86,6 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
   const [speechError, setSpeechError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechBaseRef = useRef('');
-  const finalTranscriptRef = useRef('');
   const speechUserStoppedRef = useRef(false);
 
   const speechSupported = useMemo(() => {
@@ -320,7 +319,6 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
 
     setSpeechError(null);
     speechUserStoppedRef.current = false;
-    finalTranscriptRef.current = '';
     speechBaseRef.current = input + (input && !/\s$/.test(input) ? ' ' : '');
 
     const rec = new Ctor();
@@ -331,13 +329,20 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
     rec.maxAlternatives = 1;
 
     rec.onresult = (event) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const piece = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalTranscriptRef.current += piece;
-        else interim += piece;
+      /*
+       * لا نجمع النهائي بـ += من resultIndex فقط: Chrome/Android يعيد أحياناً نفس الفهرس
+       * عند تحويل النتيجة من مؤقتة إلى نهائية → تكرار مثل "hello hello hello".
+       * إعادة بناء السطر من المصفوفة كاملة في كل حدث يضمن كل مقطع نهائي مرة واحدة.
+       */
+      let finalText = '';
+      let interimText = '';
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        const piece = result[0]?.transcript ?? '';
+        if (result.isFinal) finalText += piece;
+        else interimText += piece;
       }
-      setInput(speechBaseRef.current + finalTranscriptRef.current + interim);
+      setInput(speechBaseRef.current + finalText + interimText);
     };
 
     rec.onerror = (event) => {
