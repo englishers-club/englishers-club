@@ -42,8 +42,9 @@ const Layout: React.FC = () => {
     <div className="flex flex-col min-h-screen font-arabic bg-white text-slate-900 dark:bg-brand-navy dark:text-slate-50 transition-colors duration-300">
       <ScrollToTop />
       <Navbar />
-      {isLoading && <PageLoader />}
-      <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
+      {/* لا نعرض اللودر فوق صفحة المساعد — الطبقة fixed كانت تمنع اللمس/التمرير أثناء الانتقال أو إعادة الرسم */}
+      {isLoading && !isAssistantPage ? <PageLoader /> : null}
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

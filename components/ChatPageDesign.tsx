@@ -1,5 +1,5 @@
 /// <reference path="../vite-env.d.ts" />
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -166,13 +166,15 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
   useEffect(() => {
     const root = scrollAreaRef.current;
     if (!root) return;
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
+    const id = window.setTimeout(() => {
+      try {
         root.scrollTop = root.scrollHeight;
-      });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [liveMessages, isSending]);
+      } catch {
+        /* noop */
+      }
+    }, 0);
+    return () => clearTimeout(id);
+  }, [liveMessages]);
 
   useEffect(() => {
     return () => {
@@ -263,9 +265,11 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
       const assistantText = String(data.text || '').trim();
       if (!assistantText) throw new Error('لم يتم استلام رد');
 
-      setLiveMessages((prev) =>
-        prev.map((m) => (m.id === loadingMsg.id ? { ...m, isStreaming: false, content: assistantText } : m)),
-      );
+      startTransition(() => {
+        setLiveMessages((prev) =>
+          prev.map((m) => (m.id === loadingMsg.id ? { ...m, isStreaming: false, content: assistantText } : m)),
+        );
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'حدث خطأ، حاول مرة أخرى';
       setError(msg);
@@ -369,15 +373,24 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
     setIsHowOpen(true);
   };
 
+  useEffect(() => {
+    if (!isHowOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsHowOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isHowOpen]);
+
   return (
     <>
       <div
         dir="rtl"
-        className="flex h-full min-h-0 min-w-0 w-full max-w-full max-h-full flex-1 flex-col overflow-x-hidden bg-background"
+        className="isolate flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-x-hidden bg-background"
       >
         <div
           ref={scrollAreaRef}
-          className="flex min-h-0 min-w-0 flex-1 touch-pan-y overflow-y-auto overflow-x-hidden overscroll-y-contain px-3 pb-3 pt-3 max-[480px]:px-2.5 max-[480px]:pt-4 min-[481px]:max-[1024px]:px-4 min-[1025px]:px-6 [-webkit-overflow-scrolling:touch]"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3 pt-3 max-[480px]:px-2.5 max-[480px]:pt-4 min-[481px]:max-[1024px]:px-4 min-[1025px]:px-6"
         >
           {derivedView === 'empty' ? (
             <div
@@ -640,8 +653,8 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
 
         <div
           className={cn(
-            'sticky bottom-0 z-10 border-t border-border/40 bg-background/70 px-2.5 pt-2 pb-chat-safe backdrop-blur-xl min-[481px]:px-4 min-[1025px]:px-6',
-            hasConversation && 'bg-gradient-to-t from-background/95 via-background/90 to-transparent',
+            'relative z-10 shrink-0 border-t border-border/40 bg-background px-2.5 pt-2 pb-chat-safe min-[481px]:px-4 min-[1025px]:px-6',
+            hasConversation && 'shadow-[0_-12px_24px_-16px_rgba(0,0,0,0.25)] dark:shadow-[0_-12px_24px_-16px_rgba(0,0,0,0.45)]',
           )}
         >
           <div className="mx-auto w-full min-w-0 max-w-[880px] min-[481px]:max-w-[760px] min-[1025px]:max-w-[880px]">
@@ -678,7 +691,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                 className={cn(
                   'flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-xl border text-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-40 min-[481px]:h-9 min-[481px]:w-9',
                   isListening
-                    ? 'border-primary/60 bg-primary/20 text-primary ring-2 ring-primary/30 animate-pulse max-[480px]:ring-1'
+                    ? 'border-primary/60 bg-primary/20 text-primary ring-2 ring-primary/30 max-[480px]:ring-1'
                     : 'border-border/80 bg-background/50 hover:bg-accent/30 active:bg-accent/40',
                 )}
               >
