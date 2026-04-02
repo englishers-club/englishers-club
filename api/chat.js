@@ -1,10 +1,16 @@
-import { GoogleGenAI } from '@google/genai';
+import OpenAI from 'openai';
 import { ENGLISH_ASSISTANT_SYSTEM } from '../server/prompts/english-assistant-system.js';
 
-const rawGeminiKey = (process.env.GEMINI_API_KEY || '').trim();
-const GEMINI_API_KEY = rawGeminiKey.replace(/^["']|["']$/g, '');
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
-const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+const GROQ_API_KEY = (process.env.GROQ_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const client = GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+    })
+  : null;
+
+const GROQ_KEY_HINT = GROQ_API_KEY ? `${GROQ_API_KEY.slice(0, 3)}…${GROQ_API_KEY.slice(-4)}` : null;
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -23,10 +29,10 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   try {
-    if (!genAI) {
+    if (!client) {
       return res.status(503).json({
         success: false,
-        message: 'المساعد الذكي غير متاح حالياً. تأكد من إعداد GEMINI_API_KEY في إعدادات Vercel',
+        message: 'المساعد الذكي غير متاح حالياً. تأكد من إعداد GROQ_API_KEY (أو GEMINI_API_KEY) في إعدادات Vercel',
       });
     }
 
@@ -41,34 +47,33 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'الرسالة لا يمكن أن تكون فارغة' });
     }
 
-    const contents = [];
+    const chatMessages = [];
+    chatMessages.push({ role: 'system', content: ENGLISH_ASSISTANT_SYSTEM });
     if (Array.isArray(history) && history.length > 0) {
       for (const h of history.slice(-20)) {
-        const role = h?.role === 'assistant' ? 'model' : 'user';
+        const role = h?.role === 'assistant' ? 'assistant' : 'user';
         const text = typeof h?.content === 'string' ? h.content.slice(0, 2000) : '';
-        if (text) {
-          contents.push({ role, parts: [{ text }] });
-        }
+        if (text) chatMessages.push({ role, content: text });
       }
     }
-    contents.push({ role: 'user', parts: [{ text: safeMessage }] });
+    chatMessages.push({ role: 'user', content: safeMessage });
 
-    let systemInstruction = ENGLISH_ASSISTANT_SYSTEM;
     if (studentLevel) {
-      systemInstruction += `\n\n[Student level for this session: ${studentLevel}. Adapt your explanations and style accordingly.]`;
+      // keep it simple: append level hint as a user message
+      chatMessages.unshift({
+        role: 'system',
+        content: `${ENGLISH_ASSISTANT_SYSTEM}\n\n[Student level for this session: ${studentLevel}. Adapt your explanations and style accordingly.]`,
+      });
     }
 
-    const response = await genAI.models.generateContent({
-      model: GEMINI_MODEL,
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      },
+    const response = await client.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: chatMessages,
+      temperature: 0.7,
+      max_tokens: 1024,
     });
 
-    const text = response?.text?.trim() || '';
+    const text = String(response?.choices?.[0]?.message?.content || '').trim();
     if (!text) {
       return res.status(502).json({ success: false, message: 'لم يتلق المساعد رداً صحيحاً من الخدمة' });
     }
@@ -89,8 +94,12 @@ export default async function handler(req, res) {
       errStr.includes('is not found') ||
       errStr.includes('NOT_FOUND');
 
+    const isAuthError = err?.status === 401 || err?.code === 401 || errStr.toLowerCase().includes('unauthorized');
+    const isInvalidKey = /invalid api key/i.test(errStr);
     let msg = 'حدث خطأ أثناء الاتصال بالمساعد الذكي';
-    if (errStr.includes('API key') || errStr.includes('API_KEY')) {
+    if (isInvalidKey) {
+      msg = `مفتاح Groq غير صالح. (المفتاح الحالي: ${GROQ_KEY_HINT || 'غير موجود'}) حدّث GROQ_API_KEY بمفتاح صحيح.`;
+    } else if (isAuthError || errStr.includes('API key') || errStr.includes('API_KEY')) {
       msg = 'المساعد غير متاح - تحقق من إعدادات الخادم';
     } else if (isQuotaError) {
       msg = 'تم استنفاد حد الاستخدام المجاني للمساعد. يرجى المحاولة بعد 30 دقيقة أو غداً.';

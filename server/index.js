@@ -5,14 +5,12 @@ import express from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-config({ path: join(__dirname, '.env') });
-if (!process.env.GEMINI_API_KEY) {
-  config({ path: join(__dirname, '..', '.env') });
-}
+config({ path: join(__dirname, '..', '.env') });
+config({ path: join(__dirname, '..', '.env.local') });
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { Resend } from 'resend';
-import { GoogleGenAI } from '@google/genai';
+import OpenAI from 'openai';
 import { ENGLISH_ASSISTANT_SYSTEM } from './prompts/english-assistant-system.js';
 
 const app = express();
@@ -25,10 +23,17 @@ const TO_EMAIL = (process.env.TO_EMAIL || process.env.CONTACT_RECIPIENT_EMAIL ||
 const FROM_EMAIL = (process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev').trim();
 const FROM_NAME = (process.env.FROM_NAME || 'Englishers Club').trim();
 const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
-if (GEMINI_API_KEY) process.env.GEMINI_API_KEY = GEMINI_API_KEY;
+const GROQ_API_KEY = (process.env.GROQ_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+if (GEMINI_API_KEY) process.env.GEMINI_API_KEY = GEMINI_API_KEY; // retained for other parts; not used for chat
+if (GROQ_API_KEY) process.env.GROQ_API_KEY = GROQ_API_KEY;
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
-const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const groqClient = GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+    })
+  : null;
 
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '50kb' }));
@@ -56,10 +61,10 @@ const apiRouter = express.Router();
 
 apiRouter.post('/chat', chatLimiter, async (req, res) => {
   try {
-    if (!genAI) {
+    if (!groqClient) {
       return res.status(503).json({
         success: false,
-        message: 'المساعد الذكي غير متاح حالياً. تأكد من إعداد GEMINI_API_KEY في ملف .env',
+        message: 'المساعد الذكي غير متاح حالياً. تأكد من إعداد GROQ_API_KEY في ملفات البيئة',
       });
     }
 
@@ -74,47 +79,59 @@ apiRouter.post('/chat', chatLimiter, async (req, res) => {
       return res.status(400).json({ success: false, message: 'الرسالة لا يمكن أن تكون فارغة' });
     }
 
-    const contents = [];
+    const historyLines = [];
     if (Array.isArray(history) && history.length > 0) {
       for (const h of history.slice(-20)) {
-        const role = h?.role === 'assistant' ? 'model' : 'user';
+        const role = h?.role === 'assistant' ? 'Assistant' : 'User';
         const text = typeof h?.content === 'string' ? h.content.slice(0, 2000) : '';
-        if (text) {
-          contents.push({ role, parts: [{ text }] });
-        }
+        if (text) historyLines.push(`${role}: ${text}`);
       }
     }
-    contents.push({ role: 'user', parts: [{ text: safeMessage }] });
 
     let systemInstruction = ENGLISH_ASSISTANT_SYSTEM;
     if (studentLevel) {
       systemInstruction += `\n\n[Student level for this session: ${studentLevel}. Adapt your explanations and style accordingly.]`;
     }
 
-    const response = await genAI.models.generateContent({
-      model: GEMINI_MODEL,
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      },
+    const groqMessages = [
+      { role: 'system', content: systemInstruction },
+      ...(historyLines.length
+        ? historyLines.map((line) => {
+            if (line.startsWith('Assistant: ')) return { role: 'assistant', content: line.replace(/^Assistant:\s*/, '') };
+            return { role: 'user', content: line.replace(/^User:\s*/, '') };
+          })
+        : []),
+      { role: 'user', content: safeMessage },
+    ];
+
+    const response = await groqClient.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: groqMessages,
+      temperature: 0.35,
+      max_tokens: 900,
     });
 
-    const text = response?.text?.trim() || '';
+    const text = String(response?.choices?.[0]?.message?.content || '').trim();
     if (!text) {
       return res.status(502).json({ success: false, message: 'لم يتلق المساعد رداً صحيحاً من الخدمة' });
     }
 
     res.status(200).json({ success: true, text });
   } catch (err) {
-    console.error('Chat API error:', err?.message || err);
+    console.error('Chat API error:', err?.status || err?.code || '-', err?.message || err);
     const errStr = String(err?.message || err);
     const isQuotaError = err?.status === 429 || err?.code === 429 ||
       errStr.includes('quota') || errStr.includes('RESOURCE_EXHAUSTED') || errStr.includes('limit: 0');
     const isModelNotFound = err?.status === 404 || err?.code === 404 || errStr.includes('is not found') || errStr.includes('NOT_FOUND');
+    const isAuthError = err?.status === 401 || err?.code === 401 || errStr.toLowerCase().includes('unauthorized');
+    const isUpstreamUnavailable = err?.status === 503 || err?.code === 503 || errStr.includes('Service Unavailable');
+    const isInvalidKey = /invalid api key/i.test(errStr);
     let msg = 'حدث خطأ أثناء الاتصال بالمساعد الذكي';
-    if (errStr.includes('API key') || errStr.includes('API_KEY')) {
+    if (isInvalidKey) {
+      msg = 'مفتاح Groq غير صالح. حدّث GROQ_API_KEY بمفتاح صحيح.';
+    } else if (isUpstreamUnavailable) {
+      msg = 'خدمة المساعد مشغولة حالياً. أعد المحاولة بعد قليل.';
+    } else if (isAuthError || errStr.includes('API key') || errStr.includes('API_KEY')) {
       msg = 'المساعد غير متاح - تحقق من إعدادات الخادم';
     } else if (isQuotaError) {
       msg = 'تم استنفاد حد الاستخدام المجاني للمساعد. يرجى المحاولة بعد 30 دقيقة أو غداً.';
@@ -213,7 +230,7 @@ apiRouter.post('/contact', contactLimiter, async (req, res) => {
     }
 
     const payload = {
-      from: `Englishers <${FROM_EMAIL}>`,
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: [TO_EMAIL],
       replyTo: safeEmail,
       subject: `New Contact: ${safeName}`,
@@ -248,7 +265,14 @@ function escapeHtml(text) {
 }
 
 apiRouter.get('/health', (req, res) => {
-  res.json({ ok: true, resend: !!RESEND_API_KEY, gemini: !!GEMINI_API_KEY, routes: ['/api/contact', '/api/chat', '/api/health'] });
+  res.json({
+    ok: true,
+    resend: !!RESEND_API_KEY,
+    groq: !!GROQ_API_KEY,
+    groqKeyHint: GROQ_API_KEY ? `${GROQ_API_KEY.slice(0, 3)}…${GROQ_API_KEY.slice(-4)}` : null,
+    model: GROQ_MODEL,
+    routes: ['/api/contact', '/api/chat', '/api/health'],
+  });
 });
 
 app.use('/api', apiRouter);
@@ -264,8 +288,8 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+function logStartup(port) {
+  console.log(`Server running on http://localhost:${port}`);
   console.log(`TO_EMAIL: ${TO_EMAIL}`);
   console.log(`FROM_EMAIL: ${FROM_EMAIL}`);
   if (!RESEND_API_KEY) {
@@ -273,21 +297,26 @@ const server = app.listen(PORT, () => {
   } else {
     console.log('✓ Resend API key loaded');
   }
-  if (!GEMINI_API_KEY) {
-    console.warn('⚠️  GEMINI_API_KEY is not set - AI assistant will be unavailable');
+  if (!GROQ_API_KEY) {
+    console.warn('⚠️  GROQ_API_KEY (or GEMINI_API_KEY) is not set - AI assistant will be unavailable');
   } else {
-    console.log('✓ Gemini API loaded - model:', GEMINI_MODEL);
+    console.log('✓ Groq API loaded - model:', GROQ_MODEL);
   }
-});
+}
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    const altPort = Number(PORT) + 1;
-    console.error(`\n❌ المنفذ ${PORT} مستخدم بالفعل.`);
-    console.error(`   لإيقاف العملية القديمة على Windows:`);
-    console.error(`   netstat -ano | findstr :${PORT}`);
-    console.error(`   taskkill /PID <الرقم_المعروض> /F\n`);
-    process.exit(1);
-  }
-  throw err;
-});
+function listenWithFallback(startPort) {
+  const portNum = Number(startPort) || 3001;
+  const server = app.listen(portNum, () => logStartup(portNum));
+  server.on('error', (err) => {
+    if (err?.code === 'EADDRINUSE') {
+      const altPort = portNum + 1;
+      console.error(`\n❌ المنفذ ${portNum} مستخدم بالفعل — سأحاول المنفذ ${altPort} تلقائياً.\n`);
+      server.close(() => listenWithFallback(altPort));
+      return;
+    }
+    throw err;
+  });
+  return server;
+}
+
+listenWithFallback(PORT);

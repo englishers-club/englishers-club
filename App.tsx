@@ -12,6 +12,7 @@ import Testimonials from './pages/Testimonials';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Assistant from './pages/Assistant';
 import EnglishAssistantChat from './components/EnglishAssistantChat';
 
 const ScrollToTop = () => {
@@ -25,6 +26,7 @@ const ScrollToTop = () => {
 const Layout: React.FC = () => {
   const { pathname } = useLocation();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isAssistantPage = pathname === '/assistant';
 
   React.useEffect(() => {
     // إظهار لودر خفيف عند كل تغيير في المسار
@@ -41,7 +43,7 @@ const Layout: React.FC = () => {
       <ScrollToTop />
       <Navbar />
       {isLoading && <PageLoader />}
-      <main className="flex-grow">
+      <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -51,9 +53,10 @@ const Layout: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/assistant" element={<Assistant />} />
         </Routes>
       </main>
-      <Footer />
+      {!isAssistantPage && <Footer />}
       <EnglishAssistantChat />
     </div>
   );
