@@ -81,7 +81,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [liveMessages, setLiveMessages] = useState<MockMessage[]>([]);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -164,7 +164,14 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
   }, [view]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const root = scrollAreaRef.current;
+    if (!root) return;
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        root.scrollTop = root.scrollHeight;
+      });
+    });
+    return () => cancelAnimationFrame(id);
   }, [liveMessages, isSending]);
 
   useEffect(() => {
@@ -366,10 +373,11 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
     <>
       <div
         dir="rtl"
-        className="flex h-full min-h-0 w-full max-w-full max-h-full flex-1 flex-col overflow-x-hidden bg-background"
+        className="flex h-full min-h-0 min-w-0 w-full max-w-full max-h-full flex-1 flex-col overflow-x-hidden bg-background"
       >
         <div
-          className="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-3 pb-3 pt-3 max-[480px]:px-2.5 max-[480px]:pt-4 min-[481px]:max-[1024px]:px-4 min-[1025px]:px-6"
+          ref={scrollAreaRef}
+          className="flex min-h-0 min-w-0 flex-1 touch-pan-y overflow-y-auto overflow-x-hidden overscroll-y-contain px-3 pb-3 pt-3 max-[480px]:px-2.5 max-[480px]:pt-4 min-[481px]:max-[1024px]:px-4 min-[1025px]:px-6 [-webkit-overflow-scrolling:touch]"
         >
           {derivedView === 'empty' ? (
             <div
@@ -423,7 +431,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
             </div>
           ) : (
             <div
-              className="mx-auto w-full max-w-[880px] space-y-4 pb-1 pt-1 min-[481px]:max-w-[760px] min-[1025px]:max-w-[880px] min-[1025px]:space-y-5"
+              className="mx-auto w-full min-w-0 max-w-[880px] space-y-4 pb-1 pt-1 min-[481px]:max-w-[760px] min-[1025px]:max-w-[880px] min-[1025px]:space-y-5"
             >
               <div className="flex flex-col gap-2 px-1 min-[540px]:flex-row min-[540px]:items-center min-[540px]:justify-between min-[540px]:gap-3">
                 <p className="min-w-0 text-xs leading-relaxed text-muted-foreground min-[540px]:flex-1">
@@ -441,7 +449,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                 <div
                   key={msg.id || idx}
                   className={cn(
-                    'flex gap-2.5 min-[481px]:gap-3.5',
+                    'flex min-w-0 gap-2.5 min-[481px]:gap-3.5',
                     msg.role === 'user' ? 'flex-row-reverse' : 'flex-row',
                   )}
                 >
@@ -463,13 +471,15 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
 
                   <div
                     className={cn(
-                      'flex flex-col gap-1.5 max-w-[min(88%,20rem)] min-[400px]:max-w-[90%] min-[481px]:max-w-[80%] min-[1025px]:max-w-[76%]',
+                      'flex min-w-0 flex-1 flex-col gap-1.5',
+                      /* عرض الفقاعة: نخصم الأفاتار والفجوة حتى لا يتجاوز الصف عرض الشاشة (كان يسبب قص النص على الموبايل) */
+                      'max-w-[calc(100%-2.75rem)] min-[481px]:max-w-[min(80%,calc(100%-3.25rem))] min-[1025px]:max-w-[min(76%,calc(100%-3.5rem))]',
                       msg.role === 'user' ? 'items-end' : 'items-start',
                     )}
                   >
                     {msg.role === 'user' ? (
-                      <div className="break-words rounded-2xl rounded-tr-sm bg-primary p-3.5 text-primary-foreground shadow-sm min-[481px]:p-4">
-                        <p className="whitespace-pre-wrap break-words text-[0.92rem] leading-relaxed min-[481px]:text-[0.97rem]">
+                      <div className="min-w-0 max-w-full break-words rounded-2xl rounded-tr-sm bg-primary p-3.5 text-primary-foreground shadow-sm min-[481px]:p-4">
+                        <p className="whitespace-pre-wrap break-words text-[0.92rem] leading-relaxed [overflow-wrap:anywhere] min-[481px]:text-[0.97rem]">
                           {msg.content}
                         </p>
                       </div>
@@ -477,7 +487,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                       <>
                         <div
                           dir="auto"
-                          className="break-words rounded-2xl rounded-tl-sm border border-border bg-card p-3 shadow-sm max-[480px]:px-3.5 max-[480px]:py-3 min-[481px]:p-4"
+                          className="min-w-0 max-w-full break-words rounded-2xl rounded-tl-sm border border-border bg-card p-3 shadow-sm max-[480px]:px-3.5 max-[480px]:py-3 min-[481px]:p-4"
                         >
                           {!msg.content && msg.isStreaming ? (
                             <div className="flex items-center gap-2 text-muted-foreground">
@@ -487,7 +497,7 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                           ) : (
                             <div
                               className={cn(
-                                'assistant-md prose prose-zinc dark:prose-invert max-w-none break-words',
+                                'assistant-md prose prose-zinc dark:prose-invert max-w-full min-w-0 break-words [overflow-wrap:anywhere]',
                                 'prose-p:mt-0 prose-p:mb-3 prose-p:text-[0.9375rem] prose-p:leading-[1.65]',
                                 'max-[480px]:prose-p:mb-2.5 max-[480px]:prose-p:text-[0.9rem] max-[480px]:prose-p:leading-[1.62]',
                                 'prose-headings:scroll-mt-4 prose-headings:font-bold prose-headings:text-foreground',
@@ -624,7 +634,6 @@ export default function ChatPageDesign({ initialView = 'empty' }: ChatPageDesign
                 </div>
               ) : null}
 
-              <div ref={scrollRef} />
             </div>
           )}
         </div>
