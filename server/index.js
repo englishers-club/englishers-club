@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import express from 'express';
+import helmet from 'helmet';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,6 +16,19 @@ import { ENGLISH_ASSISTANT_SYSTEM } from './prompts/english-assistant-system.js'
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", "https://api.groq.com"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
@@ -35,7 +49,13 @@ const groqClient = GROQ_API_KEY
     })
   : null;
 
-app.use(cors({ origin: true }));
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['https://englishers-club.vercel.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST'],
+  credentials: false,
+}));
 app.use(express.json({ limit: '50kb' }));
 
 const contactLimiter = rateLimit({
@@ -48,7 +68,7 @@ const contactLimiter = rateLimit({
 
 const chatLimiter = rateLimit({
   windowMs: 2 * 60 * 1000,
-  max: 150,
+  max: 40,
   message: { success: false, message: 'تم تجاوز حد الطلبات، يرجى الانتظار دقيقة ثم أعد المحاولة' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -253,8 +273,7 @@ apiRouter.post('/contact', contactLimiter, async (req, res) => {
     }
   } catch (err) {
     console.error('Contact API error:', err);
-    const msg = err?.message || String(err) || 'حدث خطأ غير متوقع';
-    res.status(500).json({ success: false, message: msg });
+    res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً' });
   }
 });
 
@@ -267,11 +286,9 @@ function escapeHtml(text) {
 apiRouter.get('/health', (req, res) => {
   res.json({
     ok: true,
-    resend: !!RESEND_API_KEY,
     groq: !!GROQ_API_KEY,
-    groqKeyHint: GROQ_API_KEY ? `${GROQ_API_KEY.slice(0, 3)}…${GROQ_API_KEY.slice(-4)}` : null,
-    model: GROQ_MODEL,
-    routes: ['/api/contact', '/api/chat', '/api/health'],
+    resend: !!RESEND_API_KEY,
+    timestamp: new Date().toISOString(),
   });
 });
 

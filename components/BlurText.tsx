@@ -23,12 +23,12 @@ type BlurTextProps = {
 const buildKeyframes = (
   from: Record<string, string | number>,
   steps: Array<Record<string, string | number>>
-): Record<string, Array<string | number | undefined>> => {
+): Record<string, Array<string | number>> => {
   const keys = new Set<string>([...Object.keys(from), ...steps.flatMap((s) => Object.keys(s))]);
 
-  const keyframes: Record<string, Array<string | number | undefined>> = {};
+  const keyframes: Record<string, Array<string | number>> = {};
   keys.forEach((k) => {
-    keyframes[k] = [from[k], ...steps.map((s) => s[k])];
+    keyframes[k] = [from[k], ...steps.map((s) => s[k])].filter((v): v is string | number => v !== undefined);
   });
   return keyframes;
 };

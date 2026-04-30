@@ -10,11 +10,11 @@ const client = GROQ_API_KEY
     })
   : null;
 
-const GROQ_KEY_HINT = GROQ_API_KEY ? `${GROQ_API_KEY.slice(0, 3)}…${GROQ_API_KEY.slice(-4)}` : null;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGINS?.split(',')[0] || 'https://englishers-club.vercel.app';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(204).end();
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'استخدم POST لإرسال الرسائل' });
   }
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   try {
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
     const isInvalidKey = /invalid api key/i.test(errStr);
     let msg = 'حدث خطأ أثناء الاتصال بالمساعد الذكي';
     if (isInvalidKey) {
-      msg = `مفتاح Groq غير صالح. (المفتاح الحالي: ${GROQ_KEY_HINT || 'غير موجود'}) حدّث GROQ_API_KEY بمفتاح صحيح.`;
+      msg = 'مفتاح Groq غير صالح. حدّث GROQ_API_KEY بمفتاح صحيح.';
     } else if (isAuthError || errStr.includes('API key') || errStr.includes('API_KEY')) {
       msg = 'المساعد غير متاح - تحقق من إعدادات الخادم';
     } else if (isQuotaError) {

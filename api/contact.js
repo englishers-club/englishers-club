@@ -1,5 +1,7 @@
 import { Resend } from 'resend';
 
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGINS?.split(',')[0] || 'https://englishers-club.vercel.app';
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 const TO_EMAIL = (process.env.TO_EMAIL || process.env.CONTACT_RECIPIENT_EMAIL || 'englishers.co@gmail.com').trim();
@@ -17,7 +19,7 @@ function escapeHtml(text) {
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(204).end();
@@ -28,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'استخدم POST لإرسال الرسائل' });
   }
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   try {
@@ -144,8 +146,7 @@ export default async function handler(req, res) {
     }
   } catch (err) {
     console.error('Contact API (Vercel) error:', err);
-    const msg = err?.message || String(err) || 'حدث خطأ غير متوقع';
-    return res.status(500).json({ success: false, message: msg });
+    return res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً' });
   }
 }
 
